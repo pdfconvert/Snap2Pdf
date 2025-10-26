@@ -1,0 +1,539 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF to JPG | Snap2PDF</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* Reset and Base Styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    :root {
+      --primary: #4361ee;
+      --secondary: #3a0ca3;
+      --accent: #4cc9f0;
+      --light: #f8f9fa;
+      --dark: #212529;
+      --success: #4bb543;
+      --danger: #dc3545;
+      --warning: #ffc107;
+      --gray: #6c757d;
+      --light-gray: #e9ecef;
+      --card: #ffffff;
+      --border: #e5e7eb;
+      --brand: var(--primary);
+      --brand-dark: var(--secondary);
+    }
+
+    body {
+      background-color: #f5f7ff;
+      color: var(--dark);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* Header Styles */
+    header {
+      background-color: white;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 0;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    .logo i {
+      color: var(--secondary);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 25px;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: var(--dark);
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+
+    .nav-links a:hover,
+    .nav-links a.active {
+      color: var(--primary);
+    }
+
+    .dropdown {
+      position: relative;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background: #fff;
+      min-width: 220px;
+      border-radius: 10px;
+      box-shadow: 0 8px 20px rgba(0,0,0,.12);
+      top: 100%;
+      left: 0;
+      padding: 10px 0;
+      z-index: 1000;
+    }
+
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
+
+    .dropdown-content a {
+      display: block;
+      padding: 10px 20px;
+      color: var(--dark);
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+
+    .dropdown-content a:hover {
+      background: var(--light);
+    }
+
+    /* Main Content Styles */
+    .hero {
+      background: linear-gradient(135deg, var(--brand), var(--brand-dark));
+      color: #fff;
+      padding: 40px 0;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .hero h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+    }
+
+    .hero p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+
+    .tool-page {
+      background: #fff;
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      margin-bottom: 30px;
+    }
+
+    .upload-area {
+      border: 2px dashed var(--border);
+      border-radius: 16px;
+      padding: 40px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: #f8f9ff;
+    }
+
+    .upload-area:hover {
+      border-color: var(--primary);
+      background: #f0f3ff;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 40px;
+      padding: 10px 24px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(67, 97, 238, 0.25);
+    }
+
+    .btn i {
+      font-size: 0.9em;
+    }
+
+    .btn.secondary {
+      background: white;
+      color: var(--primary);
+      border: 1px solid var(--primary);
+    }
+
+    .btn.secondary:hover {
+      background: #f5f8ff;
+    }
+
+    /* Footer Styles */
+    footer {
+      background-color: var(--dark);
+      color: white;
+      padding: 60px 0 30px;
+      margin-top: auto;
+    }
+
+    .footer-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+
+    .footer-column h3 {
+      color: #fff;
+      margin-bottom: 20px;
+      font-size: 1.2rem;
+    }
+
+    .footer-links {
+      list-style: none;
+    }
+
+    .footer-links li {
+      margin-bottom: 10px;
+    }
+
+    .footer-links a {
+      color: #aaa;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+
+    .footer-links a:hover {
+      color: #fff;
+    }
+
+    .footer-bottom {
+      text-align: center;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      color: #aaa;
+      font-size: 0.9rem;
+    }
+
+    /* Comment Section */
+    .comments {
+      padding: 40px 0;
+      background: #fff;
+      border-radius: 16px;
+      margin: 20px 0;
+    }
+
+    .section-title {
+      text-align: center;
+      margin-bottom: 30px;
+      color: var(--primary);
+      font-size: 1.8rem;
+    }
+
+    .comment-form {
+      max-width: 600px;
+      margin: 0 auto;
+      background: var(--light);
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: var(--dark);
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+      outline: none;
+    }
+
+    textarea.form-control {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .muted {
+      color: var(--gray);
+      font-size: 0.9rem;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 992px) {
+      .nav-links {
+        display: none;
+      }
+      
+      .hero h1 {
+        font-size: 2rem;
+      }
+      
+      .upload-area {
+        padding: 30px 20px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .hero {
+        padding: 30px 0;
+      }
+      
+      .hero h1 {
+        font-size: 1.8rem;
+      }
+      
+      .tool-page {
+        padding: 20px;
+      }
+      
+      .footer-content {
+        grid-template-columns: 1fr;
+        gap: 30px;
+      }
+    }
+  </style>
+  <style>
+  /* comment styles injected */
+  .comments { margin: 40px 0; }
+  .section-title { margin-bottom: 14px; color: var(--brand); }
+  .comment-form { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 5px 15px rgba(0,0,0,.05); }
+  .comment-form .form-group { margin-bottom: 14px; }
+  .comment-form .form-control { padding: 10px 12px; border: 1px solid #ddd; border-radius: 8px; outline: none; }
+  .comment-form .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(67,97,238,0.08); }
+  </style>
+</head>
+<body>
+<header><div class="container"><nav class="navbar"><a href="index.html" class="logo"><i class="fas fa-file-pdf"></i><span>Snap2PDF</span></a><div class="nav-links"><a href="index.html" class="active">Home</a><div class="dropdown"><a href="#">Convert to PDF <i class="fas fa-chevron-down"></i></a><div class="dropdown-content"><a href="jpg-to-pdf.html">JPG to PDF</a><a href="word-to-pdf.html">Word to PDF</a><a href="excel-to-pdf.html">Excel to PDF</a><a href="ppt-to-pdf.html">PowerPoint to PDF</a></div></div><div class="dropdown"><a href="#">Convert from PDF <i class="fas fa-chevron-down"></i></a><div class="dropdown-content"><a href="pdf-to-jpg.html">PDF to JPG</a><a href="pdf-to-word.html">PDF to Word</a><a href="pdf-to-excel.html">PDF to Excel</a><a href="pdf-to-ppt.html">PDF to PowerPoint</a></div></div><div class="dropdown"><a href="#">Edit PDF <i class="fas fa-chevron-down"></i></a><div class="dropdown-content"><a href="merge-pdf.html">Merge PDF</a><a href="split-pdf.html">Split PDF</a><a href="compress-pdf.html">Compress PDF</a><a href="edit-pdf.html">Edit PDF</a><a href="protect-pdf.html">Protect PDF</a><a href="unlock-pdf.html">Unlock PDF</a><a href="watermark-pdf.html">Watermark PDF</a><a href="crop-pdf.html">Crop PDF</a></div></div>          <div class="dropdown"><a href="#">Image Tools <i class="fas fa-chevron-down"></i></a><div class="dropdown-content"><a href="image-compressor.html">Image Compressor</a><a href="image-resizer.html">Image Resizer</a><a href="image-editor.html">Image Editor</a><a href="background-remover.html">Background Remover</a><a href="ocr-image.html">OCR Image</a><a href="image-watermark.html">Image Watermark Tool</a></div></div>
+<div class="dropdown"><a href="#">Design Tools <i class="fas fa-chevron-down"></i></a><div class="dropdown-content"><a href="resume-maker.html">Resume Maker</a><a href="biodata-maker.html">Biodata Maker</a><a href="ai-image-generator.html">AI Image Generator</a><a href="marriage-card.html">Marriage Card</a></div></div></div><div class="auth-buttons"><a href="#" class="au
+th-btn login" onclick="showModal('login-modal')">Login</a><a href="#" class="auth-btn signup" onclick="showModal('signup-modal')">Sign Up</a></div></nav></div></header>
+<section class="hero">
+  <div class="container">
+    <h1>PDF to JPG Converter</h1>
+    <p>Extract high-quality JPG images from your PDF pages with our free online tool.</p>
+  </div>
+</section>
+<main class="container" style="flex: 1;">
+  <div class="tool-page">
+    <h2>Upload PDF</h2>
+    <div id="dropzone" class="upload-area" onclick="document.getElementById('pdf-input').click()">
+      <i class="fas fa-file-upload" style="font-size:42px;color:var(--brand)"></i>
+      <h3>Drag & drop or click to browse</h3>
+      <input id="pdf-input" type="file" accept="application/pdf" style="display:none">
+    </div>
+    
+    <div id="fileInfo" class="muted" style="margin-top:10px">No file selected (max 100 MB)</div>
+    <div class="action-buttons" style="margin-top:14px">
+      <button id="continueBtn" class="btn">Continue</button>
+      <a class="btn secondary" href="index.html">Back to Home</a>
+    </div>
+  </div>
+  <section class="comments">
+    <h2 class="section-title" style="text-align:center;margin-bottom:16px">User Comments</h2>
+    <div class="comment-form"><div class="form-group"><label>Name</label><input class="form-control" type="text" placeholder="Enter your name"></div>
+      <div class="form-group"><label>Email</label><input class="form-control" type="email" placeholder="Enter your email"></div>
+      <div class="form-group"><label>Comment</label><textarea class="form-control" placeholder="Share your experience"></textarea></div>
+      <button class="btn">Submit Comment</button>
+    </div>
+  </section>
+  <script>
+    (function(){
+      // Simple IndexedDB helper for large files
+      function idb(){
+        return new Promise((res,rej)=>{
+          const open = indexedDB.open('snap2pdf',1);
+          open.onupgradeneeded = ()=>{
+            const db = open.result; if(!db.objectStoreNames.contains('pdfstore')) db.createObjectStore('pdfstore');
+          };
+          open.onsuccess = ()=>res(open.result);
+          open.onerror = ()=>rej(open.error);
+        });
+      }
+      async function setPdfToIDB(blob,name){
+        const db = await idb();
+        await new Promise((res,rej)=>{
+          const tx = db.transaction('pdfstore','readwrite');
+          tx.objectStore('pdfstore').put({blob,name,ts:Date.now()}, 'pdf2jpg');
+          tx.oncomplete = res; tx.onerror = ()=>rej(tx.error);
+        });
+      }
+      const dz = document.getElementById('dropzone');
+      const input = document.getElementById('pdf-input');
+      const info = document.getElementById('fileInfo');
+      function setInfo(f){ info.textContent = f ? (f.name + ' (' + Math.round(f.size/1024) + ' KB)') : 'No file selected'; }
+      // clear any previous fallback
+      try{ sessionStorage.removeItem('pdf2jpg_b64'); sessionStorage.removeItem('pdf2jpg_name'); }catch(_){ }
+      async function saveFallback(f){
+        return new Promise((res)=>{
+          try{
+            const r = new FileReader();
+            r.onload = ()=>{ try{ sessionStorage.setItem('pdf2jpg_b64', r.result); sessionStorage.setItem('pdf2jpg_name', f.name||'document.pdf'); }catch(_){ } res(); };
+            r.onerror = ()=>res(); r.readAsDataURL(f);
+          }catch(_){ res(); }
+        });
+      }
+      dz.addEventListener('dragover', e=>{e.preventDefault(); dz.style.borderColor = '#ed1c24';});
+      dz.addEventListener('dragleave', e=>{e.preventDefault(); dz.style.borderColor = '#e5e7eb';});
+      dz.addEventListener('drop', async (e)=>{
+        e.preventDefault(); dz.style.borderColor = '#e5e7eb';
+        const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+        if(!f) return; if (f.size > 100*1024*1024){ alert('Please select a file up to 100 MB.'); return; }
+        setInfo(f);
+        try{ await setPdfToIDB(f, f.name); }catch(_){ /* IDB blocked; continue */ }
+        await saveFallback(f);
+        // go directly to preview page
+        location.href = 'pdf-to-jpg-convert.html';
+      });
+      input.addEventListener('change', async function(){
+        const f = this.files && this.files[0]; if(!f) return; if (f.size > 100*1024*1024){ alert('Please select a file up to 100 MB.'); return; }
+        setInfo(f);
+        try{ await setPdfToIDB(f, f.name); }catch(_){ /* IDB blocked; continue */ }
+        await saveFallback(f);
+        // go directly to preview page
+        location.href = 'pdf-to-jpg-convert.html';
+      });
+      document.getElementById('continueBtn').addEventListener('click', function(){
+        // Rely on IndexedDB presence (no reliable size check here)
+        location.href = 'pdf-to-jpg-convert.html';
+      });
+      
+    })();
+  </script>
+</main>
+<footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>Snap2PDF</h3>
+                    <p>Your all-in-one PDF solution for converting, editing, and managing documents with ease.</p>
+                </div>
+                <div class="footer-column">
+                    <h3>Convert to PDF</h3>
+                    <ul class="footer-links">
+                        <li><a href="jpg-to-pdf.html">JPG to PDF</a></li>
+                        <li><a href="word-to-pdf.html">Word to PDF</a></li>
+                        <li><a href="excel-to-pdf.html">Excel to PDF</a></li>
+                        <li><a href="ppt-to-pdf.html">PowerPoint to PDF</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Convert from PDF</h3>
+                    <ul class="footer-links">
+                        <li><a href="pdf-to-jpg.html">PDF to JPG</a></li>
+                        <li><a href="pdf-to-word.html">PDF to Word</a></li>
+                        <li><a href="pdf-to-excel.html">PDF to Excel</a></li>
+                        <li><a href="pdf-to-ppt.html">PDF to PowerPoint</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Edit PDF</h3>
+                    <ul class="footer-links">
+                        <li><a href="merge-pdf.html">Merge PDF</a></li>
+                        <li><a href="split-pdf.html">Split PDF</a></li>
+                        <li><a href="compress-pdf.html">Compress PDF</a></li>
+                        <li><a href="edit-pdf.html">Edit PDF</a></li>
+                        <li><a href="protect-pdf.html">Protect PDF</a></li>
+                        <li><a href="unlock-pdf.html">Unlock PDF</a></li>
+                        <li><a href="watermark-pdf.html">Watermark PDF</a></li>
+                        <li><a href="crop-pdf.html">Crop PDF</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Image Tools</h3>
+                    <ul class="footer-links">
+                        <li><a href="image-compressor.html">Image Compressor</a></li>
+                        <li><a href="image-resizer.html">Image Resizer</a></li>
+                        <li><a href="image-editor.html">Image Editor</a></li>
+                        <li><a href="background-remover.html">Background Remover</a></li>
+                        <li><a href="ocr-image.html">OCR Image</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Design Tools</h3>
+                    <ul class="footer-links">
+                        <li><a href="resume-maker.html">Resume Maker</a></li>
+                        <li><a href="biodata-maker.html">Biodata Maker</a></li>
+                        <li><a href="ai-image-generator.html">AI Image Generator</a></li>
+                        <li><a href="marriage-card.html">Marriage Card</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Company</h3>
+                    <ul class="footer-links">
+                        <li><a href="index.html#about">About Us</a></li>
+                        <li><a href="index.html#contact">Contact</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Connect With Us</h3>
+                    <ul class="footer-links">
+                        <li><a href="#"><i class="fab fa-twitter"></i> Twitter</a></li>
+                        <li><a href="#"><i class="fab fa-facebook"></i> Facebook</a></li>
+                        <li><a href="#"><i class="fab fa-instagram"></i> Instagram</a></li>
+                        <li><a href="#"><i class="fab fa-linkedin"></i> LinkedIn</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                
+            <div class="copyright"><p class="attribution">Icons by Font Awesome (CC BY 4.0). Libraries: jsPDF (MIT), html2canvas (MIT), Mammoth (BSD-2-Clause). <a href="attributions.html">Details</a>.</p></div></div></footer>
+</body>
+</html>
+
+
+
+
