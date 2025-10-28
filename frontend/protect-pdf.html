@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Snap2PDF Protect – Secure PDF</title>
+
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --primary: #1976d2;
+  --primary-dark: #0d47a1;
+  --bg: #f4f6fb;
+  --white: #fff;
+  --font: 'Poppins', sans-serif;
+}
+body {
+  margin: 0;
+  font-family: var(--font);
+  background: var(--bg);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.card {
+  background: var(--white);
+  box-shadow: 0 4px 30px rgba(0,0,0,0.1);
+  border-radius: 14px;
+  padding: 30px 40px;
+  width: 90%;
+  max-width: 450px;
+  text-align: center;
+}
+h2 {
+  color: var(--primary-dark);
+  margin-bottom: 10px;
+}
+p {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 20px;
+}
+.dropzone {
+  border: 2px dashed var(--primary);
+  border-radius: 10px;
+  padding: 40px 20px;
+  color: #666;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.dropzone:hover {
+  background: #e3f2fd;
+}
+input[type="password"], button {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+button {
+  background: var(--primary);
+  color: white;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+}
+button:hover {
+  background: var(--primary-dark);
+}
+.progress {
+  margin-top: 10px;
+  height: 8px;
+  width: 100%;
+  background: #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+  display: none;
+}
+.progress div {
+  height: 8px;
+  background: var(--primary);
+  width: 0%;
+  transition: width 0.3s ease;
+}
+.success {
+  color: green;
+  font-weight: 600;
+}
+.error {
+  color: red;
+  font-weight: 600;
+}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h2>🔐 Protect Your PDF</h2>
+  <p>Upload a PDF and set a password to encrypt it securely.</p>
+
+  <div class="dropzone" id="dropzone">
+    <p id="dropText">📂 Drop your PDF here or click to upload</p>
+    <input type="file" id="file" accept="application/pdf" hidden>
+  </div>
+
+  <input type="password" id="pwd" placeholder="Enter password" required>
+  <input type="password" id="pwd2" placeholder="Confirm password" required>
+
+  <button id="protectBtn">Protect & Download</button>
+
+  <div class="progress"><div id="bar"></div></div>
+  <p id="msg"></p>
+</div>
+
+<script>
+const SERVER = "https://snap2pdf-rf3r.onrender.com"; // ✅ backend link
+const dropzone = document.getElementById("dropzone");
+const fileInput = document.getElementById("file");
+const pwd = document.getElementById("pwd");
+const pwd2 = document.getElementById("pwd2");
+const msg = document.getElementById("msg");
+const bar = document.getElementById("bar");
+const progress = document.querySelector(".progress");
+let selectedFile = null;
+
+// Handle drag & drop
+dropzone.onclick = ()=>fileInput.click();
+dropzone.ondragover = e => { e.preventDefault(); dropzone.style.background="#e3f2fd"; };
+dropzone.ondragleave = ()=> dropzone.style.background="";
+dropzone.ondrop = e=>{
+  e.preventDefault();
+  dropzone.style.background="";
+  selectedFile = e.dataTransfer.files[0];
+  if(selectedFile && selectedFile.type==="application/pdf"){
+    document.getElementById("dropText").innerText = "✅ " + selectedFile.name;
+  } else {
+    alert("Please drop a valid PDF file");
+  }
+};
+fileInput.onchange = e=>{
+  selectedFile = e.target.files[0];
+  if(selectedFile) document.getElementById("dropText").innerText = "✅ " + selectedFile.name;
+};
+
+// Protect & Download
+document.getElementById("protectBtn").onclick = async ()=>{
+  if(!selectedFile){alert("Please upload a PDF");return;}
+  if(!pwd.value || !pwd2.value){alert("Please enter password");return;}
+  if(pwd.value!==pwd2.value){alert("Passwords do not match");return;}
+
+  msg.textContent = "Encrypting your PDF...";
+  msg.className = "";
+  progress.style.display = "block";
+  bar.style.width = "0%";
+
+  const fd = new FormData();
+  fd.append("file", selectedFile);
+  fd.append("user_password", pwd.value);
+
+  try {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", `${SERVER}/protect`, true);
+    xhr.responseType = "blob";
+    xhr.upload.onprogress = e=>{
+      if(e.lengthComputable){
+        const percent = (e.loaded / e.total)*100;
+        bar.style.width = percent + "%";
+      }
+    };
+    xhr.onload = function(){
+      if(xhr.status === 200){
+        const blob = xhr.response;
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "protected_" + selectedFile.name;
+        a.click();
+        URL.revokeObjectURL(url);
+        msg.textContent = "✅ PDF protected successfully!";
+        msg.className = "success";
+      } else {
+        msg.textContent = "❌ Error: " + xhr.statusText;
+        msg.className = "error";
+      }
+      bar.style.width = "100%";
+    };
+    xhr.onerror = ()=>{ msg.textContent="❌ Network error."; msg.className="error"; };
+    xhr.send(fd);
+  } catch(err){
+    msg.textContent = "❌ Failed: " + err.message;
+    msg.className = "error";
+  }
+};
+</script>
+</body>
+</html>
